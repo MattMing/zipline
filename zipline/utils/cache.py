@@ -5,7 +5,7 @@ from collections import namedtuple, MutableMapping
 import errno
 import os
 import pickle
-from shutil import rmtree, copyfile, copytree
+from shutil import rmtree, copytree, move
 from tempfile import mkdtemp, NamedTemporaryFile
 
 import pandas as pd
@@ -288,8 +288,7 @@ class working_file(object):
     def _commit(self):
         """Sync the temporary file to the final path.
         """
-        self._tmpfile.close()
-        copyfile(self.name, self._final_path)
+        move(self.name, self._final_path)
 
     def __getattr__(self, attr):
         return getattr(self._tmpfile, attr)
@@ -299,11 +298,13 @@ class working_file(object):
         return self
 
     def __exit__(self, *exc_info):
+        self._tmpfile.__exit__(*exc_info)
         if exc_info[0] is None:
             self._commit()
-        self._tmpfile.__exit__(*exc_info)
-        self._tmpfile.close()
-        os.unlink(self._tmpfile)
+
+    @property
+    def tmpfile(self):
+        return self._tmpfile
 
 
 class working_dir(object):
