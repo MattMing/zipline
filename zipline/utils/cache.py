@@ -306,6 +306,10 @@ class working_file(object):
     def tmpfile(self):
         return self._tmpfile
 
+    @tmpfile.setter
+    def tmpfile(self,value)
+        self._tmpfile = value
+
 
 class working_dir(object):
     """A context manager for managing a temporary directory that will be moved
