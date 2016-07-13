@@ -7,7 +7,6 @@ import os
 import pickle
 from shutil import rmtree, copytree, move
 from tempfile import mkdtemp, NamedTemporaryFile
-from sqlite3 import ProgrammingError
 
 import pandas as pd
 
