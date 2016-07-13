@@ -307,7 +307,7 @@ class working_file(object):
         return self._tmpfile
 
     @tmpfile.setter
-    def tmpfile(self,value)
+    def tmpfile(self, value):
         self._tmpfile = value
 
 
