@@ -290,6 +290,7 @@ class working_file(object):
     def _commit(self):
         """Sync the temporary file to the final path.
         """
+        self._tmpfile.close()
         try:
             move(self._name, self._final_path)
         except OSError as e:
