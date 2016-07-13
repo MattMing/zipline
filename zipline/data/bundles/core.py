@@ -358,12 +358,13 @@ def _make_bundle_core():
                 ))
                 # close the file to delete it on windows
                 wf.tmpfile.close()
-                adjustment_db_writer = SQLiteAdjustmentWriter(
+                adjustment_db_writer = stack.enter_context(\
+                    SQLiteAdjustmentWriter(
                     wf.path,
                     BcolzDailyBarReader(daily_bars_path),
                     bundle.calendar,
                     overwrite=True,
-                )
+                ))
                 wf.tmpfile = adjustment_db_writer.conn
                 wf.name = adjustment_db_writer.uri
             else:
