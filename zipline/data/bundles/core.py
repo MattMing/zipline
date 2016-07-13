@@ -70,19 +70,23 @@ def cache_path(bundle_name, environ=None):
     )
 
 def adjustment_db_relative(bundle_name, timestr, environ=None):
-    return [bundle_name, timestr, 'adjustments.sqlite']
+    return bundle_name, timestr, 'adjustments.sqlite'
+
 
 def cache_relative(bundle_name, timestr, environ=None):
-    return [bundle_name, '.cache']
+    return bundle_name, '.cache'
+
 
 def daily_equity_relative(bundle_name, timestr, environ=None):
-    return [bundle_name, timestr, 'daily_equities.bcolz']
+    return bundle_name, timestr, 'daily_equities.bcolz'
+
 
 def minute_equity_relative(bundle_name, timestr, environ=None):
-    return [bundle_name, timestr, 'minute_equities.bcolz']
+    return bundle_name, timestr, 'minute_equities.bcolz'
+
 
 def asset_db_relative(bundle_name, timestr, environ=None):
-    return [bundle_name, timestr, 'assets-%d.sqlite' % ASSET_DB_VERSION]
+    return bundle_name, timestr, 'assets-%d.sqlite' % ASSET_DB_VERSION
 
 
 def to_bundle_ingest_dirname(ts):
@@ -366,10 +370,11 @@ def _make_bundle_core():
                 )
                 asset_db_writer = AssetDBWriter(
                         wd.getpath(asset_db_relative(
-                            name, timestr, environ=environ)
+                        name, timestr, environ=environ)
                         ))
                 adjustment_db_writer = SQLiteAdjustmentWriter(
-                    wd.getpath(adjustment_db_relative(name, timestr, environ=environ)),
+                    wd.getpath(adjustment_db_relative(\
+                        name, timestr, environ=environ)),
                     BcolzDailyBarReader(daily_bars_path),
                     bundle.calendar,
                     overwrite=True,
