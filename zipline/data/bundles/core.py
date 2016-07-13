@@ -354,7 +354,7 @@ def _make_bundle_core():
                     BcolzDailyBarReader(daily_bars_path),
                     bundle.calendar,
                     overwrite=True,
-                )
+                ))
                 # Close the connection so we can move it later
                 adjustment_db_writer.conn.close()
             else:
