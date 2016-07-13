@@ -276,7 +276,7 @@ class working_file(object):
     meaning it has as strong of guarantees as :func:`shutil.copyfile`.
     """
     def __init__(self, final_path, *args, **kwargs):
-        self._tmpfile = NamedTemporaryFile(*args, **kwargs)
+        self._tmpfile = NamedTemporaryFile(delete=False, *args, **kwargs)
         self._name = self._tmpfile.name
         self._final_path = final_path
 
@@ -304,12 +304,9 @@ class working_file(object):
         return self
 
     def __exit__(self, *exc_info):
+        self._tmpfile.__exit__(*exc_info)
         if exc_info[0] is None:
             self._commit()
-        try:
-            self._tmpfile.__exit__(*exc_info)
-        except ProgrammingError as e:
-            pass
 
     @property
     def tmpfile(self):
