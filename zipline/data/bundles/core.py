@@ -365,7 +365,7 @@ def _make_bundle_core():
                     overwrite=True,
                 )
                 wf.tmpfile = adjustment_db_writer.conn
-                wf.tmpfile.name = adjustment_db_writer.uri
+                wf.name = adjustment_db_writer.uri
             else:
                 daily_bar_writer = None
                 minute_bar_writer = None
