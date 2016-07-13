@@ -276,7 +276,7 @@ class working_file(object):
     """
     def __init__(self, final_path, *args, **kwargs):
         self._tmpfile = NamedTemporaryFile(delete=False, *args, **kwargs)
-        self.name = self._tmpfile.name
+        self._name = self._tmpfile.name
         self._final_path = final_path
 
     @property
@@ -316,8 +316,9 @@ class working_file(object):
         return self._name
 
     @name.setter
-    def name(self,value):
-        self.name = value
+    def name(self, value):
+        self._name = value
+
 
 class working_dir(object):
     """A context manager for managing a temporary directory that will be moved
