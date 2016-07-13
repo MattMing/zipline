@@ -22,7 +22,6 @@ from ..minute_bars import (
 from zipline.assets import AssetDBWriter, AssetFinder, ASSET_DB_VERSION
 from zipline.utils.cache import (
     dataframe_cache,
-    working_file,
     working_dir,
 )
 from zipline.utils.compat import mappingproxy
@@ -350,11 +349,11 @@ def _make_bundle_core():
                     wd.mkdir(asset_db_path(name, timestr, environ=environ))
                 )
                 adjustment_db_writer = SQLiteAdjustmentWriter(
-                    wd.mkdir(adjustment_db_path(name, timestr, environ=environ),
+                    wd.mkdir(adjustment_db_path(name, timestr, environ=environ)),
                     BcolzDailyBarReader(daily_bars_path),
                     bundle.calendar,
                     overwrite=True,
-                ))
+                )
                 # Close the connection so we can move it later
                 adjustment_db_writer.conn.close()
             else:
