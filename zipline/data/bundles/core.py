@@ -37,37 +37,52 @@ open_and_closes = nyse_cal.schedule
 
 def asset_db_path(bundle_name, timestr, environ=None):
     return pth.data_path(
-        [bundle_name, timestr, 'assets-%d.sqlite' % ASSET_DB_VERSION],
+        asset_db_relative(bundle_name, timestr, environ),
         environ=environ,
     )
 
 
 def minute_equity_path(bundle_name, timestr, environ=None):
     return pth.data_path(
-        [bundle_name, timestr, 'minute_equities.bcolz'],
+        minute_equity_relative(bundle_name, timestr, environ),
         environ=environ,
     )
 
 
 def daily_equity_path(bundle_name, timestr, environ=None):
     return pth.data_path(
-        [bundle_name, timestr, 'daily_equities.bcolz'],
+        daily_equity_relative(bundle_name, timestr, environ),
         environ=environ,
     )
 
 
 def adjustment_db_path(bundle_name, timestr, environ=None):
     return pth.data_path(
-        [bundle_name, timestr, 'adjustments.sqlite'],
+        adjustment_db_relative(bundle_name, timestr, environ),
         environ=environ,
     )
 
 
 def cache_path(bundle_name, environ=None):
     return pth.data_path(
-        [bundle_name, '.cache'],
+        cache_relative(bundle_name, environ),
         environ=environ,
     )
+
+def adjustment_db_relative(bundle_name, timestr, environ=None):
+    return [bundle_name, timestr, 'adjustments.sqlite']
+
+def cache_relative(bundle_name, timestr, environ=None):
+    return [bundle_name, '.cache']
+
+def daily_equity_relative(bundle_name, timestr, environ=None):
+    return [bundle_name, timestr, 'daily_equities.bcolz']
+
+def minute_equity_relative(bundle_name, timestr, environ=None):
+    return [bundle_name, timestr, 'minute_equities.bcolz']
+
+def asset_db_relative(bundle_name, timestr, environ=None):
+    return [bundle_name, timestr, 'assets-%d.sqlite' % ASSET_DB_VERSION]
 
 
 def to_bundle_ingest_dirname(ts):
@@ -328,7 +343,9 @@ def _make_bundle_core():
                 pth.data_path([name, timestr], environ=environ))
             )
             if bundle.create_writers:
-                daily_bars_path = wd.mkdir(daily_equity_path(name, timestr, environ=environ))
+                daily_bars_path = wd.mkdir(daily_equity_relative(
+                    name, timestr, environ=environ)
+                )
                 daily_bar_writer = BcolzDailyBarWriter(
                     daily_bars_path,
                     bundle.calendar,
@@ -340,16 +357,19 @@ def _make_bundle_core():
                 daily_bar_writer.write(())
                 minute_bar_writer = BcolzMinuteBarWriter(
                     bundle.calendar[0],
-                    wd.mkdir(minute_equity_path(name, timestr, environ=environ)),
+                    wd.mkdir(minute_equity_relative(
+                        name, timestr, environ=environ)
+                    ),
                     bundle.opens,
                     bundle.closes,
                     minutes_per_day=bundle.minutes_per_day,
                 )
                 asset_db_writer = AssetDBWriter(
-                    wd.mkdir(asset_db_path(name, timestr, environ=environ))
-                )
+                        wd.getpath(asset_db_relative(
+                            name, timestr, environ=environ)
+                        ))
                 adjustment_db_writer = SQLiteAdjustmentWriter(
-                    wd.mkdir(adjustment_db_path(name, timestr, environ=environ)),
+                    wd.getpath(adjustment_db_relative(name, timestr, environ=environ)),
                     BcolzDailyBarReader(daily_bars_path),
                     bundle.calendar,
                     overwrite=True,
