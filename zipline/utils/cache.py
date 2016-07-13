@@ -7,6 +7,7 @@ import os
 import pickle
 from shutil import rmtree, copytree, move
 from tempfile import mkdtemp, NamedTemporaryFile
+from sqlite3 import ProgrammingError
 
 import pandas as pd
 
@@ -290,9 +291,9 @@ class working_file(object):
         """Sync the temporary file to the final path.
         """
         try:
-            move(self._name,self._final_path)
+            move(self._name, self._final_path)
         except OSError as e:
-            if e != ENOENT:
+            if e != errno.ENOENT:
                 raise
 
     def __getattr__(self, attr):
@@ -305,7 +306,10 @@ class working_file(object):
     def __exit__(self, *exc_info):
         if exc_info[0] is None:
             self._commit()
-        self._tmpfile.__exit__(*exc_info)
+        try:
+            self._tmpfile.__exit__(*exc_info)
+        except ProgrammingError as e:
+            pass
 
     @property
     def tmpfile(self):
