@@ -325,11 +325,11 @@ def _make_bundle_core():
                 ExitStack() as stack:
             # we use `cleanup_on_failure=False` so that we don't purge the
             # cache directory if the load fails in the middle
-
+            wd = stack.enter_context(working_dir(
+                pth.data_path([name, timestr], environ=environ))
+            )
             if bundle.create_writers:
-                daily_bars_path = stack.enter_context(working_dir(
-                    daily_equity_path(name, timestr, environ=environ),
-                )).path
+                daily_bars_path = wd.mkdir(daily_equity_path(name, timestr, environ=environ))
                 daily_bar_writer = BcolzDailyBarWriter(
                     daily_bars_path,
                     bundle.calendar,
@@ -341,31 +341,22 @@ def _make_bundle_core():
                 daily_bar_writer.write(())
                 minute_bar_writer = BcolzMinuteBarWriter(
                     bundle.calendar[0],
-                    stack.enter_context(working_dir(
-                        minute_equity_path(name, timestr, environ=environ),
-                    )).path,
+                    wd.mkdir(minute_equity_path(name, timestr, environ=environ)),
                     bundle.opens,
                     bundle.closes,
                     minutes_per_day=bundle.minutes_per_day,
                 )
                 asset_db_writer = AssetDBWriter(
-                    stack.enter_context(working_file(
-                        asset_db_path(name, timestr, environ=environ),
-                    )).path,
+                    wd.mkdir(asset_db_path(name, timestr, environ=environ))
                 )
-                wf = stack.enter_context(working_file(
-                    adjustment_db_path(name, timestr, environ=environ),
-                ))
-                # close the file to delete it on windows
-                wf.tmpfile.close()
                 adjustment_db_writer = SQLiteAdjustmentWriter(
-                    wf.path,
+                    wd.mkdir(adjustment_db_path(name, timestr, environ=environ),
                     BcolzDailyBarReader(daily_bars_path),
                     bundle.calendar,
                     overwrite=True,
                 )
-                wf.tmpfile = adjustment_db_writer.conn
-                wf.name = adjustment_db_writer.uri
+                # Close the connection so we can move it later
+                adjustment_db_writer.conn.close()
             else:
                 daily_bar_writer = None
                 minute_bar_writer = None

@@ -290,11 +290,7 @@ class working_file(object):
         """Sync the temporary file to the final path.
         """
         self._tmpfile.close()
-        try:
-            move(self._name, self._final_path)
-        except OSError as e:
-            if e != errno.ENOENT:
-                raise
+        move(self._name, self._final_path)
 
     def __getattr__(self, attr):
         return getattr(self._tmpfile, attr)
