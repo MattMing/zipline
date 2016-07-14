@@ -344,11 +344,11 @@ def _make_bundle_core():
                 ExitStack() as stack:
             # we use `cleanup_on_failure=False` so that we don't purge the
             # cache directory if the load fails in the middle
-            wd = stack.enter_context(working_dir(
-                pth.data_path([name, timestr], environ=environ))
-            )
             if bundle.create_writers:
-                daily_bars_path = wd.getpath(*daily_equity_relative(
+                wd = stack.enter_context(working_dir(
+                    pth.data_path([name, timestr], environ=environ))
+                )
+                daily_bars_path = wd.mkdir(*daily_equity_relative(
                     name, timestr, environ=environ)
                 )
                 daily_bar_writer = BcolzDailyBarWriter(
@@ -362,7 +362,7 @@ def _make_bundle_core():
                 daily_bar_writer.write(())
                 minute_bar_writer = BcolzMinuteBarWriter(
                     bundle.calendar[0],
-                    wd.getpath(*minute_equity_relative(
+                    wd.mkdir(*minute_equity_relative(
                         name, timestr, environ=environ)
                     ),
                     bundle.opens,
