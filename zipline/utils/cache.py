@@ -351,7 +351,7 @@ class working_dir(object):
             The parts of the path after the working directory.
         """
         path = self.getpath(*path_parts)
-        os.mkdir(path)
+        os.mkdirs(path)
         return path
 
     def getpath(self, *path_parts):
