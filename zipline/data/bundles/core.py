@@ -371,17 +371,16 @@ def _make_bundle_core():
                 )
                 asset_db_writer = AssetDBWriter(
                         wd.getpath(*asset_db_relative(
-                            name, timestr, environ=environ)
+                        name, timestr, environ=environ)
                         ))
-                adjustment_db_writer = SQLiteAdjustmentWriter(
+                adjustment_db_writer = stack.enter_context(
+                    SQLiteAdjustmentWriter(
                     wd.getpath(*adjustment_db_relative(
                     name, timestr, environ=environ)),
                     BcolzDailyBarReader(daily_bars_path),
                     bundle.calendar,
                     overwrite=True,
-                )
-                # Close the connection so we can move it later
-                adjustment_db_writer.conn.close()
+                ))
             else:
                 daily_bar_writer = None
                 minute_bar_writer = None
